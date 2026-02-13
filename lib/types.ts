@@ -58,7 +58,7 @@ export interface WizardData {
   // Step 3
   timeline: Timeline | '';
   // Step 4
-  numPages: number;
+  siteSections: string[];
   needsBlog: boolean;
   multiLanguage: boolean;
   needsLogin: boolean;
@@ -82,7 +82,7 @@ export const initialWizardData: WizardData = {
   projectType: '',
   industry: '',
   timeline: '',
-  numPages: 1,
+  siteSections: [],
   needsBlog: false,
   multiLanguage: false,
   needsLogin: false,

@@ -1,14 +1,27 @@
 "use client";
 
 import { WizardData } from '@/lib/types';
-import { FileText, BookOpen, Languages, UserCircle, Plug, CreditCard, Minus, Plus } from 'lucide-react';
+import { LayoutTemplate, BookOpen, Languages, UserCircle, Plug, CreditCard } from 'lucide-react';
+
+const siteSections = [
+  { key: 'hero', label: 'Hero / Portada principal' },
+  { key: 'quienes_somos', label: 'Quiénes somos / Empresa' },
+  { key: 'servicios', label: 'Servicios o soluciones' },
+  { key: 'productos', label: 'Productos o catálogo' },
+  { key: 'casos_exito', label: 'Casos de éxito / Portafolio' },
+  { key: 'testimonios', label: 'Testimonios de clientes' },
+  { key: 'faq', label: 'Preguntas frecuentes' },
+  { key: 'blog_noticias', label: 'Blog o noticias' },
+  { key: 'contacto', label: 'Contacto / formulario' },
+  { key: 'agenda', label: 'Agenda de reunión / reserva' },
+] as const;
 
 const questions = [
-  { key: 'needsBlog', label: '¿Necesitas un blog?', icon: BookOpen },
-  { key: 'multiLanguage', label: '¿Multi-idioma? (+20%)', icon: Languages },
-  { key: 'needsLogin', label: '¿Sistema de login/usuarios?', icon: UserCircle },
-  { key: 'externalIntegrations', label: '¿Integraciones externas?', icon: Plug },
-  { key: 'needsPaymentGateway', label: '¿Pasarela de pagos?', icon: CreditCard },
+  { key: 'needsBlog', label: '¿Necesitas blog administrable?', icon: BookOpen },
+  { key: 'multiLanguage', label: '¿Contenido en más de un idioma?', icon: Languages },
+  { key: 'needsLogin', label: '¿Acceso con usuarios y contraseña?', icon: UserCircle },
+  { key: 'externalIntegrations', label: '¿Integraciones con herramientas externas?', icon: Plug },
+  { key: 'needsPaymentGateway', label: '¿Cobros o pagos online?', icon: CreditCard },
 ] as const;
 
 interface Step4Props {
@@ -17,61 +30,66 @@ interface Step4Props {
 }
 
 export function Step4Technical({ data, updateData }: Step4Props) {
-  const handleToggle = (key: keyof Omit<WizardData, 'clientName' | 'clientEmail' | 'clientWhatsapp' | 'projectType' | 'industry' | 'timeline' | 'numPages' | 'addons'>) => {
-    updateData({ [key]: !data[key] });
+  const selectedSections = data.siteSections ?? [];
+
+  const toggleSection = (sectionKey: string) => {
+    const exists = selectedSections.includes(sectionKey);
+    updateData({
+      siteSections: exists
+        ? selectedSections.filter(s => s !== sectionKey)
+        : [...selectedSections, sectionKey],
+    });
   };
 
-  const adjustPages = (delta: number) => {
-    const newValue = Math.max(1, Math.min(20, (data.numPages ?? 1) + delta));
-    updateData({ numPages: newValue });
+  const handleToggle = (
+    key: keyof Omit<WizardData, 'clientName' | 'clientEmail' | 'clientWhatsapp' | 'projectType' | 'industry' | 'timeline' | 'siteSections' | 'addons'>
+  ) => {
+    updateData({ [key]: !data[key] });
   };
 
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Detalles técnicos
+          Estructura y funcionalidades
         </h2>
         <p className="text-gray-600">
-          Cuéntanos más sobre las funcionalidades que necesitas
+          Selecciona qué secciones y capacidades tendrá tu proyecto
         </p>
       </div>
 
-      {/* Number of pages */}
       <div className="bg-gray-50 rounded-xl p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-              <FileText className="w-5 h-5 text-emerald-600" />
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Número de páginas/secciones</p>
-              <p className="text-sm text-gray-500">+$25.000 por página adicional</p>
-            </div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+            <LayoutTemplate className="w-5 h-5 text-emerald-600" />
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => adjustPages(-1)}
-              disabled={(data.numPages ?? 1) <= 1}
-              className="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-gray-300 hover:bg-gray-100 disabled:opacity-50 transition-colors"
-            >
-              <Minus className="w-4 h-4" />
-            </button>
-            <span className="w-12 text-center font-semibold text-lg">{data.numPages ?? 1}</span>
-            <button
-              type="button"
-              onClick={() => adjustPages(1)}
-              disabled={(data.numPages ?? 1) >= 20}
-              className="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-gray-300 hover:bg-gray-100 disabled:opacity-50 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
+          <div>
+            <p className="font-medium text-gray-900">¿Qué secciones necesita tu web?</p>
+            <p className="text-sm text-gray-500">Mientras más detalle tengamos, más precisa será la propuesta.</p>
           </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-2">
+          {siteSections.map(section => {
+            const isSelected = selectedSections.includes(section.key);
+            return (
+              <button
+                key={section.key}
+                type="button"
+                onClick={() => toggleSection(section.key)}
+                className={`text-left rounded-lg border px-3 py-2 text-sm transition-all ${
+                  isSelected
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {section.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Boolean questions */}
       <div className="space-y-3">
         {questions.map(q => {
           const Icon = q.icon;

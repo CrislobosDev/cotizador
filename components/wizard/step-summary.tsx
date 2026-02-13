@@ -2,7 +2,7 @@
 
 import { WizardData } from '@/lib/types';
 import { calculatePricing, formatPrice } from '@/lib/pricing-engine';
-import { User, Mail, Phone, Briefcase, Calendar, FileText, CheckCircle } from 'lucide-react';
+import { User, Mail, Phone, Briefcase, Calendar, LayoutTemplate, CheckCircle } from 'lucide-react';
 
 const projectTypeLabels: Record<string, string> = {
   LANDING: 'Landing Page',
@@ -12,9 +12,22 @@ const projectTypeLabels: Record<string, string> = {
 };
 
 const timelineLabels: Record<string, string> = {
-  '7-10_DAYS': '7-10 días (Urgente)',
-  '2-3_WEEKS': '2-3 semanas',
-  '4+_WEEKS': '4+ semanas',
+  '7-10_DAYS': 'Prioridad máxima',
+  '2-3_WEEKS': 'Lo necesito pronto',
+  '4+_WEEKS': 'Tengo tiempo para planificar',
+};
+
+const sectionLabels: Record<string, string> = {
+  hero: 'Hero / Portada principal',
+  quienes_somos: 'Quiénes somos / Empresa',
+  servicios: 'Servicios o soluciones',
+  productos: 'Productos o catálogo',
+  casos_exito: 'Casos de éxito / Portafolio',
+  testimonios: 'Testimonios',
+  faq: 'Preguntas frecuentes',
+  blog_noticias: 'Blog o noticias',
+  contacto: 'Contacto / formulario',
+  agenda: 'Agenda / reservas',
 };
 
 const addonLabels: Record<string, string> = {
@@ -83,9 +96,21 @@ export function StepSummary({ data }: StepSummaryProps) {
           <Calendar className="w-5 h-5 text-emerald-600" />
           <span>{timelineLabels[data.timeline ?? ''] ?? data.timeline ?? '-'}</span>
         </div>
-        <div className="flex items-center gap-3 text-gray-700">
-          <FileText className="w-5 h-5 text-emerald-600" />
-          <span>{data.numPages ?? 1} página(s)</span>
+        <div className="flex items-start gap-3 text-gray-700">
+          <LayoutTemplate className="w-5 h-5 text-emerald-600 mt-0.5" />
+          <div>
+            <p className="font-medium text-gray-900 mb-2">Secciones solicitadas</p>
+            <div className="flex flex-wrap gap-2">
+              {(data.siteSections ?? []).map(section => (
+                <span
+                  key={section}
+                  className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm"
+                >
+                  {sectionLabels[section] ?? section}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

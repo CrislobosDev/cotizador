@@ -8,8 +8,8 @@ const BASE_PRICES: Record<string, number> = {
 };
 
 const TIMELINE_MULTIPLIERS: Record<string, number> = {
-  '7-10_DAYS': 1.4,
-  '2-3_WEEKS': 1.2,
+  '7-10_DAYS': 1.25,
+  '2-3_WEEKS': 1.15,
   '4+_WEEKS': 1.0,
 };
 
@@ -22,8 +22,6 @@ const ADDONS: Record<string, { name: string; price: number; isRecurring?: boolea
   googleAnalytics: { name: 'Google Analytics', price: 30000 },
 };
 
-const EXTRA_PAGE_PRICE = 25000;
-
 export function calculatePricing(data: WizardData): PricingResult {
   const projectType = data.projectType || 'LANDING';
   const timeline = data.timeline || '4+_WEEKS';
@@ -32,9 +30,11 @@ export function calculatePricing(data: WizardData): PricingResult {
   const timelineMultiplier = TIMELINE_MULTIPLIERS[timeline] ?? 1.0;
   const multiLanguageMultiplier = data.multiLanguage ? 1.2 : 1.0;
 
-  // Calculate extra pages cost
-  const extraPages = Math.max(0, (data.numPages ?? 1) - 1);
-  const extraPagesCost = extraPages * EXTRA_PAGE_PRICE;
+  const sectionCount = Math.max(1, data.siteSections?.length ?? 0);
+  const sectionScopeMultiplier =
+    sectionCount <= 3 ? 1.0 :
+    sectionCount <= 5 ? 1.1 :
+    sectionCount <= 7 ? 1.2 : 1.3;
 
   // Selected addons
   const selectedAddons = Object.entries(data.addons ?? {})
@@ -56,6 +56,7 @@ export function calculatePricing(data: WizardData): PricingResult {
     const packageBase = Math.round(basePrice * priceMultiplier);
     const packageWithTime = Math.round(packageBase * timelineMultiplier);
     const packageWithLang = Math.round(packageWithTime * multiLanguageMultiplier);
+    const packageWithScope = Math.round(packageWithLang * sectionScopeMultiplier);
     
     const items: { type: ItemType; name: string; amount: number }[] = [
       { type: 'BASE', name: `Desarrollo web ${projectType.toLowerCase()}`, amount: packageBase },
@@ -63,7 +64,7 @@ export function calculatePricing(data: WizardData): PricingResult {
 
     if (timelineMultiplier > 1) {
       const urgencyAmount = Math.round(packageBase * (timelineMultiplier - 1));
-      items.push({ type: 'MULTIPLIER', name: `Urgencia (${timeline?.replace('_', ' ')})`, amount: urgencyAmount });
+      items.push({ type: 'MULTIPLIER', name: 'Priorización de calendario', amount: urgencyAmount });
     }
 
     if (multiLanguageMultiplier > 1) {
@@ -71,8 +72,13 @@ export function calculatePricing(data: WizardData): PricingResult {
       items.push({ type: 'MULTIPLIER', name: 'Multi-idioma (+20%)', amount: langAmount });
     }
 
-    if (extraPages > 0) {
-      items.push({ type: 'EXTRA', name: `${extraPages} página(s) adicional(es)`, amount: extraPagesCost });
+    if (sectionScopeMultiplier > 1) {
+      const scopeAmount = packageWithScope - packageWithLang;
+      items.push({
+        type: 'EXTRA',
+        name: `Alcance de contenido (${sectionCount} secciones)`,
+        amount: scopeAmount,
+      });
     }
 
     items.push(...additionalItems);
@@ -108,7 +114,7 @@ export function calculatePricing(data: WizardData): PricingResult {
     0.8,
     [
       'Diseño responsive básico',
-      'Hasta 3 secciones',
+      'Estructura inicial del sitio',
       'Formulario de contacto',
       'Entrega estándar',
     ],
@@ -122,7 +128,7 @@ export function calculatePricing(data: WizardData): PricingResult {
     1.0,
     [
       'Diseño responsive premium',
-      'Hasta 7 secciones',
+      'Estructura completa con secciones clave',
       'Formulario de contacto avanzado',
       'Optimización de velocidad',
       'Google Analytics incluido',
@@ -140,7 +146,7 @@ export function calculatePricing(data: WizardData): PricingResult {
     1.3,
     [
       'Diseño responsive premium personalizado',
-      'Secciones ilimitadas',
+      'Arquitectura de contenido avanzada',
       'SEO avanzado incluido',
       'Copywriting profesional',
       'Google Analytics avanzado',

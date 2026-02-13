@@ -11,17 +11,12 @@ export async function GET(
     const id = params?.id ?? '';
     const supabase = getSupabaseClient();
 
-    // Check if id is a UUID or public_token
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-
-    let query = supabase.from('quotes').select('*');
-    if (isUuid) {
-      query = query.eq('id', id);
-    } else {
-      query = query.eq('public_token', id);
-    }
-
-    const { data: quote, error } = await query.single();
+    // public_token is also UUID, so always try both fields.
+    const { data: quote, error } = await supabase
+      .from('quotes')
+      .select('*')
+      .or(`id.eq.${id},public_token.eq.${id}`)
+      .single();
 
     if (error || !quote) {
       return NextResponse.json({ error: 'Cotización no encontrada' }, { status: 404 });

@@ -47,6 +47,9 @@ export function WizardContainer() {
       case 3:
         if (!data.timeline) newErrors.timeline = 'Selecciona un plazo';
         break;
+      case 4:
+        if (!data.siteSections?.length) newErrors.siteSections = 'Selecciona al menos una sección';
+        break;
     }
 
     setErrors(newErrors);
@@ -118,6 +121,9 @@ export function WizardContainer() {
 
       <div className="bg-white rounded-xl card-shadow p-6 md:p-8 mt-8">
         {renderStep()}
+        {errors.siteSections && (
+          <p className="text-sm text-red-500 text-center mt-4">{errors.siteSections}</p>
+        )}
 
         <div className="flex justify-between mt-8 pt-6 border-t border-gray-100">
           <button

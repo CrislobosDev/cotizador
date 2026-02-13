@@ -5,22 +5,16 @@ import { Zap, Clock, Calendar } from 'lucide-react';
 
 const timelines: { value: Timeline; label: string; description: string; icon: typeof Clock; badge?: string }[] = [
   {
-    value: '7-10_DAYS',
-    label: '7-10 días',
-    description: 'Entrega urgente (+40% adicional)',
-    icon: Zap,
-    badge: 'Urgente',
-  },
-  {
     value: '2-3_WEEKS',
-    label: '2-3 semanas',
-    description: 'Entrega rápida (+20% adicional)',
-    icon: Clock,
+    label: 'Lo necesito pronto',
+    description: 'Priorizamos tu proyecto para iniciar y entregar en menor tiempo.',
+    icon: Zap,
+    badge: 'Prioritario',
   },
   {
     value: '4+_WEEKS',
-    label: '4+ semanas',
-    description: 'Plazo estándar (precio base)',
+    label: 'Tengo tiempo para planificar',
+    description: 'Podemos trabajar con un calendario más flexible y ordenado.',
     icon: Calendar,
     badge: 'Recomendado',
   },
@@ -40,7 +34,7 @@ export function Step3Plazo({ data, updateData, errors }: Step3Props) {
           ¿Para cuándo lo necesitas?
         </h2>
         <p className="text-gray-600">
-          El plazo afecta el precio final de la cotización
+          Esto nos ayuda a definir la prioridad de trabajo de forma profesional
         </p>
       </div>
 
@@ -63,7 +57,7 @@ export function Step3Plazo({ data, updateData, errors }: Step3Props) {
               {timeline.badge && (
                 <span
                   className={`absolute top-2 right-2 text-xs px-2 py-1 rounded-full ${
-                    timeline.badge === 'Urgente'
+                    timeline.badge === 'Prioritario'
                       ? 'bg-amber-100 text-amber-700'
                       : 'bg-emerald-100 text-emerald-700'
                   }`}

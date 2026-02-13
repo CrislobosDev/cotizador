@@ -2,25 +2,22 @@
 
 import { WizardData } from '@/lib/types';
 import { Search, PenTool, CreditCard, Wrench, Globe, BarChart3 } from 'lucide-react';
-import { formatPrice } from '@/lib/pricing-engine';
 import type { LucideIcon } from 'lucide-react';
 
 interface AddonItem {
   key: keyof WizardData['addons'];
   label: string;
   description: string;
-  price: number;
   icon: LucideIcon;
-  isRecurring?: boolean;
 }
 
 const addons: AddonItem[] = [
-  { key: 'seoInicial', label: 'SEO inicial', description: 'Optimización para buscadores', price: 120000, icon: Search },
-  { key: 'copywriting', label: 'Copywriting profesional', description: 'Textos persuasivos para tu web', price: 80000, icon: PenTool },
-  { key: 'integracionPagos', label: 'Integración de pagos', description: 'Webpay, Mercado Pago, etc.', price: 180000, icon: CreditCard },
-  { key: 'mantenimientoMensual', label: 'Mantenimiento mensual', description: 'Actualizaciones y soporte', price: 49000, icon: Wrench, isRecurring: true },
-  { key: 'dominioCorreos', label: 'Dominio + correos', description: 'Tu dominio y emails corporativos', price: 50000, icon: Globe },
-  { key: 'googleAnalytics', label: 'Google Analytics', description: 'Seguimiento de visitas', price: 30000, icon: BarChart3 },
+  { key: 'seoInicial', label: 'SEO inicial', description: 'Optimización para buscadores', icon: Search },
+  { key: 'copywriting', label: 'Copywriting profesional', description: 'Textos persuasivos para tu web', icon: PenTool },
+  { key: 'integracionPagos', label: 'Integración de pagos', description: 'Webpay, Mercado Pago, etc.', icon: CreditCard },
+  { key: 'mantenimientoMensual', label: 'Mantenimiento mensual', description: 'Actualizaciones y soporte continuo', icon: Wrench },
+  { key: 'dominioCorreos', label: 'Dominio + correos', description: 'Tu dominio y emails corporativos', icon: Globe },
+  { key: 'googleAnalytics', label: 'Google Analytics', description: 'Seguimiento de visitas y conversiones', icon: BarChart3 },
 ];
 
 interface Step5Props {
@@ -45,7 +42,7 @@ export function Step5Addons({ data, updateData }: Step5Props) {
           Servicios adicionales
         </h2>
         <p className="text-gray-600">
-          Potencia tu proyecto con estos extras opcionales
+          Selecciona lo que te interesa. Los valores exactos se ajustan según alcance.
         </p>
       </div>
 
@@ -80,24 +77,16 @@ export function Step5Addons({ data, updateData }: Step5Props) {
                   <p className="text-sm text-gray-500">{addon.description}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900">{formatPrice(addon.price)}</p>
-                  {addon.isRecurring && (
-                    <p className="text-xs text-amber-600">/mes</p>
-                  )}
-                </div>
-                <div
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                    isSelected ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'
-                  }`}
-                >
-                  {isSelected && (
-                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </div>
+              <div
+                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                  isSelected ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'
+                }`}
+              >
+                {isSelected && (
+                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
               </div>
             </button>
           );

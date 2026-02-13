@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
     // Save answers
     const answers = [
-      { key: 'numPages', value: String(data.numPages ?? 1) },
+      { key: 'siteSections', value: JSON.stringify(data.siteSections ?? []) },
       { key: 'needsBlog', value: String(data.needsBlog ?? false) },
       { key: 'multiLanguage', value: String(data.multiLanguage ?? false) },
       { key: 'needsLogin', value: String(data.needsLogin ?? false) },

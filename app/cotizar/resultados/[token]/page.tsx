@@ -94,6 +94,24 @@ export default function ResultadosPage() {
       answerMap[a?.key ?? ''] = a?.value ?? '';
     });
 
+    let parsedSections: string[] = [];
+    try {
+      const rawSections = answerMap.siteSections;
+      if (rawSections) {
+        const maybeArray = JSON.parse(rawSections);
+        if (Array.isArray(maybeArray)) {
+          parsedSections = maybeArray.filter(Boolean);
+        }
+      }
+    } catch {
+      parsedSections = [];
+    }
+
+    if (!parsedSections.length) {
+      const legacyPages = parseInt(answerMap.numPages ?? '1', 10) || 1;
+      parsedSections = Array.from({ length: legacyPages }, (_, i) => `Sección ${i + 1}`);
+    }
+
     return {
       clientName: quote?.client_name ?? '',
       clientEmail: quote?.client_email ?? '',
@@ -101,7 +119,7 @@ export default function ResultadosPage() {
       projectType: quote?.project_type ?? 'LANDING',
       industry: quote?.industry ?? '',
       timeline: quote?.timeline ?? '4+_WEEKS',
-      numPages: parseInt(answerMap.numPages ?? '1', 10) || 1,
+      siteSections: parsedSections,
       needsBlog: answerMap.needsBlog === 'true',
       multiLanguage: answerMap.multiLanguage === 'true',
       needsLogin: answerMap.needsLogin === 'true',

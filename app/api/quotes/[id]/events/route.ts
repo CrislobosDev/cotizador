@@ -12,17 +12,12 @@ export async function POST(
     const body = await request.json();
     const supabase = getSupabaseClient();
 
-    // First get the quote by public_token or id
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-    
-    let query = supabase.from('quotes').select('id');
-    if (isUuid) {
-      query = query.eq('id', id);
-    } else {
-      query = query.eq('public_token', id);
-    }
-
-    const { data: quote } = await query.single();
+    // public_token is also UUID, so always try both fields.
+    const { data: quote } = await supabase
+      .from('quotes')
+      .select('id')
+      .or(`id.eq.${id},public_token.eq.${id}`)
+      .single();
     if (!quote) {
       return NextResponse.json({ error: 'Quote not found' }, { status: 404 });
     }

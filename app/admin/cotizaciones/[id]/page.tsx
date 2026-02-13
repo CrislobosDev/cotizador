@@ -55,9 +55,22 @@ const projectTypeLabels: Record<string, string> = {
 };
 
 const timelineLabels: Record<string, string> = {
-  '7-10_DAYS': '7-10 días',
-  '2-3_WEEKS': '2-3 semanas',
-  '4+_WEEKS': '4+ semanas',
+  '7-10_DAYS': 'Prioridad máxima',
+  '2-3_WEEKS': 'Lo necesito pronto',
+  '4+_WEEKS': 'Tengo tiempo para planificar',
+};
+
+const sectionLabels: Record<string, string> = {
+  hero: 'Hero / Portada principal',
+  quienes_somos: 'Quiénes somos / Empresa',
+  servicios: 'Servicios o soluciones',
+  productos: 'Productos o catálogo',
+  casos_exito: 'Casos de éxito / Portafolio',
+  testimonios: 'Testimonios',
+  faq: 'Preguntas frecuentes',
+  blog_noticias: 'Blog o noticias',
+  contacto: 'Contacto / formulario',
+  agenda: 'Agenda / reservas',
 };
 
 const eventLabels: Record<string, { label: string; icon: typeof Eye }> = {
@@ -303,11 +316,32 @@ export default function AdminQuoteDetailPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-3">
                   <FileText className="w-5 h-5 text-emerald-600" />
                   <div>
-                    <p className="text-sm text-gray-500">Páginas</p>
-                    <p className="font-medium text-gray-900">{getAnswer('numPages') || '1'}</p>
+                    <p className="text-sm text-gray-500">Secciones</p>
+                    <div className="flex flex-wrap gap-2">
+                      {(() => {
+                        try {
+                          const raw = getAnswer('siteSections');
+                          const sections = raw ? JSON.parse(raw) : [];
+                          if (Array.isArray(sections) && sections.length > 0) {
+                            return sections.map((section: string) => (
+                              <span key={section} className="bg-slate-100 text-slate-700 px-2 py-1 rounded-full text-xs">
+                                {sectionLabels[section] ?? section}
+                              </span>
+                            ));
+                          }
+                        } catch {}
+
+                        const legacyPages = parseInt(getAnswer('numPages') || '1', 10) || 1;
+                        return (
+                          <p className="font-medium text-gray-900">
+                            {legacyPages} sección(es) registradas
+                          </p>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </div>
               </div>

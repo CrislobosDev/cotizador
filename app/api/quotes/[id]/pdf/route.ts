@@ -25,9 +25,22 @@ function generatePdfHtml(quote: Record<string, unknown>, items: Record<string, u
   };
 
   const timelineLabels: Record<string, string> = {
-    '7-10_DAYS': '7-10 días',
-    '2-3_WEEKS': '2-3 semanas',
-    '4+_WEEKS': '4+ semanas',
+    '7-10_DAYS': 'Prioridad máxima',
+    '2-3_WEEKS': 'Lo necesito pronto',
+    '4+_WEEKS': 'Tengo tiempo para planificar',
+  };
+
+  const sectionLabels: Record<string, string> = {
+    hero: 'Hero / Portada principal',
+    quienes_somos: 'Quiénes somos / Empresa',
+    servicios: 'Servicios o soluciones',
+    productos: 'Productos o catálogo',
+    casos_exito: 'Casos de éxito / Portafolio',
+    testimonios: 'Testimonios',
+    faq: 'Preguntas frecuentes',
+    blog_noticias: 'Blog o noticias',
+    contacto: 'Contacto / formulario',
+    agenda: 'Agenda / reservas',
   };
 
   // Group items by package
@@ -58,6 +71,24 @@ function generatePdfHtml(quote: Record<string, unknown>, items: Record<string, u
   if (answerMap.addon_mantenimientoMensual === 'true') addons.push('Mantenimiento mensual');
   if (answerMap.addon_dominioCorreos === 'true') addons.push('Dominio + correos');
   if (answerMap.addon_googleAnalytics === 'true') addons.push('Google Analytics');
+
+  let sections: string[] = [];
+  try {
+    const rawSections = answerMap.siteSections;
+    if (rawSections) {
+      const parsed = JSON.parse(rawSections);
+      if (Array.isArray(parsed)) {
+        sections = parsed.map((s: string) => sectionLabels[s] ?? s);
+      }
+    }
+  } catch {
+    sections = [];
+  }
+
+  if (!sections.length) {
+    const legacyPages = parseInt(answerMap.numPages ?? '1', 10) || 1;
+    sections = [`${legacyPages} sección(es) registradas`];
+  }
 
   return `
 <!DOCTYPE html>
@@ -127,7 +158,7 @@ function generatePdfHtml(quote: Record<string, unknown>, items: Record<string, u
       <div class="info-item"><span class="info-label">WhatsApp:</span> <span class="info-value">${clientWhatsapp}</span></div>
       <div class="info-item"><span class="info-label">Tipo:</span> <span class="info-value">${projectTypeLabels[projectType] ?? projectType}${industry ? ` (${industry})` : ''}</span></div>
       <div class="info-item"><span class="info-label">Plazo:</span> <span class="info-value">${timelineLabels[timeline] ?? timeline}</span></div>
-      <div class="info-item"><span class="info-label">Páginas:</span> <span class="info-value">${answerMap.numPages ?? '1'}</span></div>
+      <div class="info-item"><span class="info-label">Secciones:</span> <span class="info-value">${sections.join(', ')}</span></div>
     </div>
   </div>
 
@@ -200,17 +231,12 @@ export async function GET(
     const id = params?.id ?? '';
     const supabase = getSupabaseClient();
 
-    // Get quote by ID or public_token
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-    
-    let query = supabase.from('quotes').select('*');
-    if (isUuid) {
-      query = query.eq('id', id);
-    } else {
-      query = query.eq('public_token', id);
-    }
-
-    const { data: quote, error: quoteError } = await query.single();
+    // public_token is also UUID, so always try both fields.
+    const { data: quote, error: quoteError } = await supabase
+      .from('quotes')
+      .select('*')
+      .or(`id.eq.${id},public_token.eq.${id}`)
+      .single();
 
     if (quoteError || !quote) {
       return NextResponse.json({ error: 'Cotización no encontrada' }, { status: 404 });

@@ -1,32 +1,53 @@
 "use client";
 
+import { useState } from 'react';
 import { WizardData, ProjectType } from '@/lib/types';
-import { Globe, Building2, ShoppingCart, Lock, Briefcase } from 'lucide-react';
+import { Globe, Building2, ShoppingCart, Lock, Briefcase, ChevronDown, ChevronUp } from 'lucide-react';
 
-const projectTypes: { value: ProjectType; label: string; description: string; icon: typeof Globe }[] = [
+const projectTypes: {
+  value: ProjectType;
+  label: string;
+  description: string;
+  icon: typeof Globe;
+  details: string;
+  idealFor: string;
+  examples: string[];
+}[] = [
   {
     value: 'LANDING',
     label: 'Landing Page',
-    description: 'Página única promocional o de conversión',
+    description: 'Una página enfocada en captar contactos o vender una oferta puntual.',
     icon: Globe,
+    details: 'Ideal para campañas, lanzamientos o validar una idea rápido.',
+    idealFor: 'Emprendedores, servicios profesionales, campañas publicitarias.',
+    examples: ['Campaña de Meta Ads', 'Lanzamiento de curso', 'Captación de leads inmobiliarios'],
   },
   {
     value: 'CORPORATIVA',
     label: 'Sitio Corporativo',
-    description: 'Sitio web institucional con múltiples páginas',
+    description: 'Web de empresa para presentar marca, servicios y generar confianza.',
     icon: Building2,
+    details: 'Permite mostrar áreas de negocio, equipo, casos de éxito y contacto.',
+    idealFor: 'Pymes, consultoras, estudios, constructoras, clínicas.',
+    examples: ['Web institucional', 'Perfil de empresa B2B', 'Sitio de servicios profesionales'],
   },
   {
     value: 'ECOMMERCE',
     label: 'E-commerce',
-    description: 'Tienda online con carrito y pagos',
+    description: 'Tienda online para vender productos con carrito y pago digital.',
     icon: ShoppingCart,
+    details: 'Incluye catálogo, fichas de productos, checkout y gestión básica de pedidos.',
+    idealFor: 'Tiendas retail, marcas propias, negocios que venden por Instagram/WhatsApp.',
+    examples: ['Tienda de ropa', 'Catálogo con pago online', 'Venta de productos por categoría'],
   },
   {
     value: 'INTRANET',
     label: 'Intranet/Sistema',
-    description: 'Sistema web empresarial con login',
+    description: 'Plataforma interna con usuarios, permisos y procesos del negocio.',
     icon: Lock,
+    details: 'Se diseña a medida para centralizar tareas, información y flujos internos.',
+    idealFor: 'Empresas con procesos manuales o uso intensivo de planillas.',
+    examples: ['Sistema de cotizaciones interno', 'Panel de operaciones', 'Gestión de clientes/proyectos'],
   },
 ];
 
@@ -37,6 +58,8 @@ interface Step2Props {
 }
 
 export function Step2Proyecto({ data, updateData, errors }: Step2Props) {
+  const [expandedType, setExpandedType] = useState<ProjectType | null>(null);
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -76,6 +99,49 @@ export function Step2Proyecto({ data, updateData, errors }: Step2Props) {
                   {type.label}
                 </p>
                 <p className="text-sm text-gray-500">{type.description}</p>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setExpandedType(prev => (prev === type.value ? null : type.value));
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setExpandedType(prev => (prev === type.value ? null : type.value));
+                    }
+                  }}
+                  className="mt-2 inline-flex items-center gap-1 text-sm text-emerald-700 hover:text-emerald-800"
+                >
+                  {expandedType === type.value ? (
+                    <>
+                      Ocultar detalles <ChevronUp className="w-4 h-4" />
+                    </>
+                  ) : (
+                    <>
+                      Ver más detalles <ChevronDown className="w-4 h-4" />
+                    </>
+                  )}
+                </span>
+
+                {expandedType === type.value && (
+                  <div className="mt-3 space-y-2 rounded-lg bg-white/80 p-3 border border-emerald-100">
+                    <p className="text-sm text-gray-700">{type.details}</p>
+                    <p className="text-sm text-gray-700">
+                      <span className="font-medium text-gray-900">¿Quién lo necesita?</span> {type.idealFor}
+                    </p>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 mb-1">Ejemplos claros:</p>
+                      <ul className="list-disc pl-5 text-sm text-gray-700">
+                        {type.examples.map(example => (
+                          <li key={example}>{example}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </div>
             </button>
           );
